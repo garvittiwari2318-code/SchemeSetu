@@ -1,4 +1,6 @@
-import app from "./server.js";
+// @ts-nocheck
+
+const app = require("./server.js");
 
 const PORT = process.env.PORT || 5000;
 
