@@ -1,0 +1,23 @@
+{
+  "name": "schemesetu-backend",
+  "version": "1.0.0",
+  "description": "Backend foundation for SchemeSetu - SIH 2026 (PS ID: SIH26092)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["sih2026", "schemesetu", "express", "mongodb"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
