@@ -12,7 +12,9 @@ const cors = require("cors");
 // models already exposed for use by controllers/services.
 // ----------------------------------------------------------------------
 const connectDB = require("./config/db");
-connectDB();
+connectDB().catch((err) => {
+  console.error(err.message);
+});
 // ----------------------------------------------------------------------
 
 const { notFound, errorHandler } = require("./middleware/errorHandler");
