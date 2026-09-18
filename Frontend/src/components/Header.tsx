@@ -13,7 +13,7 @@ interface HeaderProps {
   onOpenQuickInfo?: () => void;
 }
 
-export const EMBLEM_URL = '/schemesetu-logo.svg';
+export const EMBLEM_URL = '/schemesetu-mark.svg';
 
 export const Header: React.FC<HeaderProps> = ({
   currentView,
@@ -38,9 +38,9 @@ export const Header: React.FC<HeaderProps> = ({
             aria-label="SchemeSetu Home"
           >
             <img
-              alt="SchemeSetu Emblem"
-              className="w-8 h-8 object-contain shrink-0 transition-transform group-hover:scale-105"
               src={EMBLEM_URL}
+              alt="SchemeSetu"
+              className="w-10 h-10 object-contain"
             />
             <div className="flex items-baseline font-bold text-2xl tracking-tight">
               <span className="text-[#16324F]">Scheme</span>

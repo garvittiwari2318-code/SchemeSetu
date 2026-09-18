@@ -15,8 +15,7 @@ import {
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
-export const DOCUMENT_ICON_URL =
-  'https://lh3.googleusercontent.com/aida/AEtjO1XjJy0ZFMDL-yt0lEu5IEIfpieXbQIREpF5ET0na0nSxhx5pCtu77lR_2Ch1ouup3IxuI26B8E-Gj65lq7btL3DCAe51Bt71tYgFdSXF5gnC17vyiKhDUg6JJeqGGjg83qKD23YWj1TfKfbUPIytC-41eQ7xl4GYTj6hA7aOWIW6ZOUpa1Db_GBsDU-7Q5w9v5P6PT5ZCLATL0xeSi6k8enCaVasmReifP85vrzBtwmt4aR_1W0UsZjHA';
+export const DOCUMENT_ICON_URL = '/schemesetu-mark.svg';
 
 interface EligibilityFlowProps {
   profile: UserProfile;

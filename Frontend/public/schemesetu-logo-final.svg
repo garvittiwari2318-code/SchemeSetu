@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 96" fill="none">
+  <title>SchemeSetu logo</title>
+  <g>
+    <path d="M16 43L48 13L80 43" stroke="#16324F" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="48" cy="13" r="7" fill="#C94B2C"/>
+    <path d="M25 42V63M71 42V63" stroke="#C94B2C" stroke-width="7" stroke-linecap="round"/>
+    <path d="M25 63H71" stroke="#16324F" stroke-width="8" stroke-linecap="round"/>
+    <path d="M12 67C23 59 34 56 48 56C62 56 73 59 84 67" stroke="#16324F" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <text x="106" y="63" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700" letter-spacing="-1.5" fill="#16324F">Scheme</text>
+  <text x="270" y="63" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700" letter-spacing="-1.5" fill="#C94B2C">Setu</text>
+</svg>
