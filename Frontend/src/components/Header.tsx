@@ -13,8 +13,7 @@ interface HeaderProps {
   onOpenQuickInfo?: () => void;
 }
 
-export const EMBLEM_URL =
-  'https://lh3.googleusercontent.com/aida/AEtjO1WRahitUOKnV29SpccM-eVSn7jMzMTaVYiG3yidflvIUceM1zMCwSIYrRwZdn09ju1akIyliEugfpdz82cKVZ8THSB5edIMNfzcCwK7NW0aQvnxT_-8Jy8srGJR5_Ee0XTJQCU8g7X1d7-8HLIdjIRySDvgsF7IU8eUFh4s7o97ff03NPfGXSgwnuQV4pVyHNGXHhE03zWmBC6ncCKqprS1v2hmJdhCDMo3ZyDWPMYgX1fUpiiKIswvdB8';
+export const EMBLEM_URL = '/schemesetu-logo.svg';
 
 export const Header: React.FC<HeaderProps> = ({
   currentView,
