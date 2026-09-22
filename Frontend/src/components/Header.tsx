@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, User } from 'lucide-react';
 import { AppView, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
@@ -24,6 +24,16 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenQuickInfo
 }) => {
   const [showMap, setShowMap] = useState(false);
+  useEffect(() => {
+    if (showMap) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showMap]);
   const t = TRANSLATIONS[language];
 
   return (
@@ -124,6 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
+          {/* Scheme Map Button */}
           <button
             type="button"
             onClick={() => setShowMap(true)}
@@ -156,21 +167,21 @@ export const Header: React.FC<HeaderProps> = ({
 
       {showMap && (
         <div
-          className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[200] bg-black/50 backdrop-blur-sm grid place-items-center p-4"
           onClick={() => setShowMap(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-base font-bold text-[#001d37]">
+            <div className="flex items-center justify-between mb-5">
+              <span className="text-lg font-bold text-[#001d37]">
                 Scheme Coverage Map
               </span>
               <button
                 type="button"
                 onClick={() => setShowMap(false)}
-                className="w-8 h-8 rounded-full bg-[#f0eee8] flex items-center justify-center text-[#43474d] hover:bg-[#e4e2dd] transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-[#f0eee8] flex items-center justify-center text-[#43474d] hover:bg-[#e4e2dd] transition-colors cursor-pointer"
               >
                 ✕
               </button>
@@ -182,7 +193,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setShowMap(false);
                 onStartEligibility();
               }}
-              className="w-full mt-4 py-3 rounded-lg bg-[#16324f] text-white text-sm font-semibold hover:bg-[#10243a] transition-all"
+              className="w-full mt-4 py-3 rounded-lg bg-[#16324f] text-white text-sm font-semibold hover:bg-[#10243a] transition-all cursor-pointer"
             >
               Check your eligibility →
             </button>
