@@ -19,21 +19,31 @@ export function mapRecommendationToSchemeMatch(
     id: recommendation.schemeId,
     title: recommendation.name,
     shortName: recommendation.schemeId,
-    ministry: undefined,
-    category: undefined,
-    sectorType: undefined,
+
+    ministry: 'Government Scheme',
+    category: 'MSME',
+    sectorType: 'Priority Banking',
+
     benefitHeadline:
       recommendation.interestRate != null
         ? `Interest rate: ${recommendation.interestRate}% p.a.`
-        : undefined,
+        : 'Financial support available',
+
     maxCeilingText:
       recommendation.maxLoanAmount != null
         ? `Maximum loan: ${formatCurrency(recommendation.maxLoanAmount)} · Maximum tenure: ${recommendation.maxTenureYears} years`
-        : undefined,
-    description: undefined,
-    statutoryClause: undefined,
-    officialPortalUrl: undefined,
-    objectives: undefined,
+        : 'Loan details provided by backend',
+
+    description: recommendation.description,
+
+    statutoryClause:
+      matchedCriteria.length > 0
+        ? matchedCriteria.join(' ')
+        : 'Eligibility evaluated by the backend rule engine.',
+
+    officialPortalUrl: '',
+    objectives: recommendation.description,
+
     eligibilityParameters: matchedCriteria,
     requiredDocuments: [],
   };
