@@ -95,8 +95,6 @@ export const RepositoryView: React.FC<RepositoryViewProps> = ({
       return matchesCategory && matchesSearch;
     });
   }, [schemes, activeCategory, searchQuery]);
-
-
 return (
   <div id="schemes-view" className="flex flex-col w-full min-h-[calc(100vh-5rem)] bg-[#fbf9f3] pb-16">
     {/* Header Banner */}
