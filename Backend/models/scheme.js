@@ -103,27 +103,89 @@ const schemeSchema = new mongoose.Schema(
       required: [true, "Scheme description is required"],
       trim: true,
     },
+    objective: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    ministry: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    category: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    sectorType: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    benefitHeadline: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    maxCeilingText: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    statutoryClause: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    officialPortalUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    eligibilityParameters: {
+      type: [String],
+      default: [],
+    },
+
+    requiredDocuments: {
+      type: [String],
+      default: [],
+    },
+
     interestRate: {
       type: Number,
-      required: [true, "Interest rate is required"],
       min: [0, "Interest rate cannot be negative"],
+      default: null,
     },
     maxLoanAmount: {
       type: Number,
-      required: [true, "Maximum loan amount is required"],
       min: [0, "Maximum loan amount cannot be negative"],
+      default: null,
     },
     maxTenureYears: {
       type: Number,
-      required: [true, "Maximum tenure (years) is required"],
       min: [0, "Maximum tenure cannot be negative"],
+      default: null,
     },
     moratoriumMonths: {
       type: Number,
-      required: [true, "Moratorium period (months) is required"],
       min: [0, "Moratorium months cannot be negative"],
+      default: null,
     },
     active: {
+      type: Boolean,
+      default: true,
+    },
+    recommendationEnabled: {
       type: Boolean,
       default: true,
     },

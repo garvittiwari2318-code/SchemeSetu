@@ -130,7 +130,10 @@ function normalizePurpose(rawPurpose) {
 async function getRecommendations(rawInput) {
   const profile = normalizeProfile(rawInput);
 
-  const activeSchemes = await Scheme.find({ active: true }).lean();
+  const activeSchemes = await Scheme.find({
+    active: true,
+    recommendationEnabled: true,
+  }).lean();
 
   const recommendations = activeSchemes.map((scheme) => {
     const result = evaluateScheme(scheme, profile);
@@ -138,10 +141,20 @@ async function getRecommendations(rawInput) {
     return {
       schemeId: scheme.schemeId,
       name: scheme.name,
+      description: scheme.description,
+      bjective: scheme.objective || "",
+      ministry: scheme.ministry || "",
+      category: scheme.category || "",
+      sectorType: scheme.sectorType || "",
+      officialPortalUrl: scheme.officialPortalUrl || "",
+      requiredDocuments: scheme.requiredDocuments || [],
+
       eligible: result.eligible,
       matchScore: result.score,
+
       passedRules: result.passedRules,
       failedRules: result.failedRules,
+
       ruleExplanations: result.evaluatedRules.map((r) => ({
         field: r.field,
         expectedCondition: r.expectedCondition,
@@ -150,6 +163,7 @@ async function getRecommendations(rawInput) {
         hard: r.hard,
         explanation: r.explanation,
       })),
+
       interestRate: scheme.interestRate,
       maxLoanAmount: scheme.maxLoanAmount,
       maxTenureYears: scheme.maxTenureYears,
