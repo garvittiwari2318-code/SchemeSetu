@@ -25,6 +25,14 @@ export interface RuleExplanation {
 export interface Recommendation {
   schemeId: string;
   name: string;
+  description: string;
+  objective: string;
+  ministry: string;
+  category: string;
+  sectorType: string;
+  officialPortalUrl: string;
+  requiredDocuments: string[];
+
   eligible: boolean;
   matchScore: number;
   passedRules: unknown[];
@@ -62,14 +70,32 @@ export interface Scheme {
   schemeId: string;
   name: string;
   description: string;
-  interestRate: number;
-  maxLoanAmount: number;
-  maxTenureYears: number;
-  moratoriumMonths: number;
+
+  objective: string;
+  ministry: string;
+  category: string;
+  sectorType: string;
+
+  benefitHeadline: string;
+  maxCeilingText: string;
+  statutoryClause: string;
+  officialPortalUrl: string;
+
+  eligibilityParameters: string[];
+  requiredDocuments: string[];
+
+  interestRate: number | null;
+  maxLoanAmount: number | null;
+  maxTenureYears: number | null;
+  moratoriumMonths: number | null;
+
+  recommendationEnabled: boolean;
   active: boolean;
   version: number;
+
   rules: SchemeRule[];
   scoring: SchemeScoring;
+
   createdAt: string;
   updatedAt: string;
 }

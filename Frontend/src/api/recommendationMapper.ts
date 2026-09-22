@@ -20,9 +20,9 @@ export function mapRecommendationToSchemeMatch(
     title: recommendation.name,
     shortName: recommendation.schemeId,
 
-    ministry: 'Government Scheme',
-    category: 'MSME',
-    sectorType: 'Priority Banking',
+    ministry: recommendation.ministry,
+    category: recommendation.category,
+    sectorType: recommendation.sectorType,
 
     benefitHeadline:
       recommendation.interestRate != null
@@ -41,11 +41,11 @@ export function mapRecommendationToSchemeMatch(
         ? matchedCriteria.join(' ')
         : 'Eligibility evaluated by the backend rule engine.',
 
-    officialPortalUrl: '',
-    objectives: recommendation.description,
+    officialPortalUrl: recommendation.officialPortalUrl,
+    objectives: recommendation.objective,
 
     eligibilityParameters: matchedCriteria,
-    requiredDocuments: [],
+    requiredDocuments: recommendation.requiredDocuments,
   };
 
   return {
