@@ -15,11 +15,13 @@ export class ApiError extends Error {
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
+    credentials: 'include',
     headers: {
       ...(options?.body ? { 'Content-Type': 'application/json' } : {}),
       ...options?.headers,
     },
   });
+
 
   let body: unknown;
 
@@ -35,7 +37,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   if (!response.ok) {
     const message =
       typeof body === 'object' && body !== null && 'message' in body &&
-      typeof body.message === 'string'
+        typeof body.message === 'string'
         ? body.message
         : `Request failed with status ${response.status}.`;
 

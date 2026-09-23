@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 
 const express = require("express");
@@ -32,12 +31,21 @@ const partnerRoutes = require("./routes/Partnerroutes");
 const applicationRoutes = require("./routes/Applicationroutes");
 
 const app = express();
+const cookieParser = require("cookie-parser");
+const authRoutes = require("./routes/authRoutes");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 
 // ---- Global Middleware ----
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+);
 // ---- Routes ----
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -51,6 +59,7 @@ app.use("/api/schemes", schemeRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/partners", partnerRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/auth", authRoutes);
 
 // Future route mounts (uncomment as features are built):
 // app.use("/api/auth", require("./routes/authRoutes"));

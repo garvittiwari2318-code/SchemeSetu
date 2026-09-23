@@ -9,4 +9,18 @@ export {
   getApplications,
   getApplicationById,
 } from './applications';
+export {
+  register,
+  login,
+  getCurrentUser,
+  logout,
+} from './auth';
+
+export type {
+  AuthUser,
+  RegisterRequest,
+  LoginRequest,
+  AuthResponse,
+  CurrentUserResponse,
+} from './auth';
 export type * from './types';
