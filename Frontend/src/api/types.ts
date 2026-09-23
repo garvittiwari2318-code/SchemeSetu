@@ -30,6 +30,11 @@ export interface Recommendation {
   ministry: string;
   category: string;
   sectorType: string;
+
+  benefitHeadline: string;
+  maxCeilingText: string;
+  statutoryClause: string;
+
   officialPortalUrl: string;
   requiredDocuments: string[];
 

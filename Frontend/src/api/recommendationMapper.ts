@@ -21,25 +21,16 @@ export function mapRecommendationToSchemeMatch(
     shortName: recommendation.schemeId,
 
     ministry: recommendation.ministry,
-    category: recommendation.category,
-    sectorType: recommendation.sectorType,
+    category: recommendation.category as Scheme['category'],
+    sectorType: recommendation.sectorType as Scheme['sectorType'],
 
-    benefitHeadline:
-      recommendation.interestRate != null
-        ? `Interest rate: ${recommendation.interestRate}% p.a.`
-        : 'Financial support available',
+    benefitHeadline: recommendation.benefitHeadline,
 
-    maxCeilingText:
-      recommendation.maxLoanAmount != null
-        ? `Maximum loan: ${formatCurrency(recommendation.maxLoanAmount)} · Maximum tenure: ${recommendation.maxTenureYears} years`
-        : 'Loan details provided by backend',
+    maxCeilingText: recommendation.maxCeilingText,
 
     description: recommendation.description,
 
-    statutoryClause:
-      matchedCriteria.length > 0
-        ? matchedCriteria.join(' ')
-        : 'Eligibility evaluated by the backend rule engine.',
+    statutoryClause: recommendation.statutoryClause,
 
     officialPortalUrl: recommendation.officialPortalUrl,
     objectives: recommendation.objective,
