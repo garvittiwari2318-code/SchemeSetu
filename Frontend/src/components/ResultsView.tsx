@@ -21,10 +21,10 @@ interface ResultsViewProps {
   profile: UserProfile;
   isEvaluating?: boolean;
   errorMessage?: string | null;
-  errorMessage?: string | null;
   onModifyProfile: () => void;
   onReturnHome: () => void;
   onOpenSchemeModal: (scheme: Scheme) => void;
+  onStartApplication: (scheme: Scheme) => void;
 }
 
 export const ResultsView: React.FC<ResultsViewProps> = ({
@@ -34,34 +34,14 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   errorMessage = null,
   onModifyProfile,
   onReturnHome,
-  onOpenSchemeModal
+  onOpenSchemeModal,
+  onStartApplication
 }) => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   if (isEvaluating) {
     return <EvaluationSkeletonLoader profile={profile} />;
-  }
-
-  if (errorMessage) {
-    return (
-      <div id="results-view" className="flex flex-col w-full min-h-[calc(100vh-5rem)] bg-[#fbf9f3] pb-16">
-        <div className="max-w-[75rem] w-full mx-auto px-4 lg:px-10 pt-12">
-          <div className="text-center py-12 p-6 rounded-xl bg-white border border-[#c3c6ce]/30">
-            <AlertTriangle className="w-10 h-10 text-[#C0392B] mx-auto mb-2" />
-            <h3 className="text-base font-bold text-[#001d37]">Unable to evaluate your profile</h3>
-            <p className="text-xs text-[#43474d] mt-1">{errorMessage}</p>
-            <button
-              type="button"
-              onClick={onModifyProfile}
-              className="mt-4 px-4 py-2 rounded-lg bg-[#16324F] text-white text-xs font-semibold cursor-pointer"
-            >
-              Modify Profile &amp; Try Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   if (errorMessage) {
@@ -332,6 +312,15 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                   </button>
 
                   <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onStartApplication(match.scheme)}
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#2F6B4F] text-white text-xs font-semibold hover:bg-[#25563f] transition-colors shadow-xs cursor-pointer"
+                    >
+                      <FileCheck className="w-3.5 h-3.5" />
+                      <span>Start Application</span>
+                    </button>
+
                     {match.scheme.officialPortalUrl && (
                       <a
                         href={match.scheme.officialPortalUrl}
@@ -368,11 +357,11 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         <div className="p-4 rounded-xl bg-[#f5f3ed] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#43474d] border border-[#c3c6ce]/30">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1">
             <span className="flex items-center gap-1 text-[#1b1c18] font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#2F6B4F]" /> No login required
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#2F6B4F]" /> Eligibility check requires no login
             </span>
             <span className="text-[#c3c6ce]">•</span>
             <span className="flex items-center gap-1 text-[#1b1c18] font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#2F6B4F]" /> Privacy-first in-browser evaluation
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#2F6B4F]" /> Login is used only for application tracking
             </span>
             <span className="text-[#c3c6ce]">•</span>
             <span className="flex items-center gap-1 text-[#1b1c18] font-medium">

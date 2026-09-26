@@ -4,23 +4,7 @@ export { toRecommendationRequest } from './profileAdapter';
 export { mapRecommendationToSchemeMatch, mapRecommendationsToSchemeMatches } from './recommendationMapper';
 export { getSchemes, getSchemeById } from './schemes';
 export { getPartnersForScheme } from './partners';
-export {
-  createApplication,
-  getApplications,
-  getApplicationById,
-} from './applications';
-export {
-  register,
-  login,
-  getCurrentUser,
-  logout,
-} from './auth';
-
-export type {
-  AuthUser,
-  RegisterRequest,
-  LoginRequest,
-  AuthResponse,
-  CurrentUserResponse,
-} from './auth';
+export { createApplication, getApplications, getApplicationById } from './applications';
+export { register, login, getCurrentUser, logout } from './auth';
+export type { AuthUser } from './auth';
 export type * from './types';

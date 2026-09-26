@@ -1,5 +1,5 @@
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api'
 ).replace(/\/$/, '');
 
 export class ApiError extends Error {
@@ -22,7 +22,6 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     },
   });
 
-
   let body: unknown;
 
   try {
@@ -37,7 +36,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   if (!response.ok) {
     const message =
       typeof body === 'object' && body !== null && 'message' in body &&
-        typeof body.message === 'string'
+      typeof body.message === 'string'
         ? body.message
         : `Request failed with status ${response.status}.`;
 

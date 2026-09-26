@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, User } from 'lucide-react';
+import { ArrowRight, User, LogOut } from 'lucide-react';
 import { AppView, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { IndiaSchemeMap } from './IndiaSchemeMap';
+import type { AuthUser } from '../api/auth';
 
 interface HeaderProps {
   currentView: AppView;
@@ -11,6 +12,9 @@ interface HeaderProps {
   onToggleLanguage: (lang: Language) => void;
   onStartEligibility: () => void;
   onOpenQuickInfo?: () => void;
+  currentUser: AuthUser | null;
+  onOpenAuth: () => void;
+  onLogout: () => void;
 }
 
 export const EMBLEM_URL = '/schemesetu-mark.svg';
@@ -21,9 +25,13 @@ export const Header: React.FC<HeaderProps> = ({
   language,
   onToggleLanguage,
   onStartEligibility,
-  onOpenQuickInfo
+  onOpenQuickInfo,
+  currentUser,
+  onOpenAuth,
+  onLogout,
 }) => {
   const [showMap, setShowMap] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
   useEffect(() => {
     if (showMap) {
       document.body.style.overflow = 'hidden';
@@ -34,6 +42,11 @@ export const Header: React.FC<HeaderProps> = ({
       document.body.style.overflow = '';
     };
   }, [showMap]);
+
+  useEffect(() => {
+    setShowAccountMenu(false);
+  }, [currentUser]);
+
   const t = TRANSLATIONS[language];
 
   return (
@@ -70,27 +83,24 @@ export const Header: React.FC<HeaderProps> = ({
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }, 100);
             }}
-            className={`text-sm font-semibold transition-colors duration-200 cursor-pointer ${
-              currentView === 'landing' ? 'text-[#16324F]' : 'text-[#43474d] hover:text-[#C0392B]'
-            }`}
+            className={`text-sm font-semibold transition-colors duration-200 cursor-pointer ${currentView === 'landing' ? 'text-[#16324F]' : 'text-[#43474d] hover:text-[#C0392B]'
+              }`}
           >
             {t.howItWorks}
           </button>
           <button
             type="button"
             onClick={() => onNavigate('schemes')}
-            className={`text-sm font-semibold transition-colors duration-200 cursor-pointer ${
-              currentView === 'schemes' ? 'text-[#C0392B] underline font-bold' : 'text-[#43474d] hover:text-[#C0392B]'
-            }`}
+            className={`text-sm font-semibold transition-colors duration-200 cursor-pointer ${currentView === 'schemes' ? 'text-[#C0392B] underline font-bold' : 'text-[#43474d] hover:text-[#C0392B]'
+              }`}
           >
             {t.schemeRepo}
           </button>
           <button
             type="button"
             onClick={() => onNavigate('transparency')}
-            className={`text-sm font-semibold transition-colors duration-200 cursor-pointer ${
-              currentView === 'transparency' ? 'text-[#C0392B] underline font-bold' : 'text-[#43474d] hover:text-[#C0392B]'
-            }`}
+            className={`text-sm font-semibold transition-colors duration-200 cursor-pointer ${currentView === 'transparency' ? 'text-[#C0392B] underline font-bold' : 'text-[#43474d] hover:text-[#C0392B]'
+              }`}
           >
             {t.transparency}
           </button>
@@ -116,9 +126,8 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onToggleLanguage('en')}
-              className={`transition-colors cursor-pointer ${
-                language === 'en' ? 'text-[#16324F] font-extrabold' : 'hover:text-[#C0392B]'
-              }`}
+              className={`transition-colors cursor-pointer ${language === 'en' ? 'text-[#16324F] font-extrabold' : 'hover:text-[#C0392B]'
+                }`}
             >
               EN
             </button>
@@ -126,9 +135,8 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => onToggleLanguage('hi')}
-              className={`transition-colors cursor-pointer ${
-                language === 'hi' ? 'text-[#C0392B] font-extrabold' : 'hover:text-[#C0392B]'
-              }`}
+              className={`transition-colors cursor-pointer ${language === 'hi' ? 'text-[#C0392B] font-extrabold' : 'hover:text-[#C0392B]'
+                }`}
             >
               हिंदी
             </button>
@@ -154,14 +162,50 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* User / Profile Info Indicator */}
-          <button
-            type="button"
-            onClick={onOpenQuickInfo}
-            title="Citizen Session & Privacy Status"
-            className="w-9 h-9 rounded-full bg-[#eae8e2] border border-[#c3c6ce]/40 flex items-center justify-center text-[#16324F] hover:bg-[#e4e2dd] transition-colors cursor-pointer"
-          >
-            <User className="w-5 h-5" />
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                if (currentUser) {
+                  setShowAccountMenu((open) => !open);
+                } else {
+                  onOpenAuth();
+                }
+              }}
+              title={currentUser ? 'Account' : 'Sign in'}
+              aria-expanded={currentUser ? showAccountMenu : undefined}
+              aria-haspopup={currentUser ? 'menu' : undefined}
+              className="w-9 h-9 rounded-full bg-[#eae8e2] border border-[#c3c6ce]/40 flex items-center justify-center text-[#16324F] hover:bg-[#e4e2dd] transition-colors cursor-pointer"
+            >
+              <User className="w-5 h-5" />
+            </button>
+
+            {currentUser && showAccountMenu && (
+              <div className="absolute right-0 top-12 w-64 bg-white border border-[#c3c6ce]/40 rounded-xl shadow-lg p-4 z-[100]">
+                <p className="text-sm font-bold text-[#001d37]">
+                  {currentUser.name}
+                </p>
+
+                <p className="text-xs text-[#74777e] mt-1 break-all">
+                  {currentUser.email}
+                </p>
+
+                <div className="border-t border-[#c3c6ce]/30 mt-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAccountMenu(false);
+                      onLogout();
+                    }}
+                    className="w-full inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-[#C0392B] hover:bg-[#fff0ee] transition-colors cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

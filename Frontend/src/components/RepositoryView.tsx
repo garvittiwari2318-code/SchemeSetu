@@ -28,7 +28,7 @@ const mapApiSchemeToUiScheme = (scheme: ApiScheme): Scheme => ({
   statutoryClause: scheme.statutoryClause,
   officialPortalUrl: scheme.officialPortalUrl,
   objectives: scheme.objective,
-  eligibilityParameters: scheme.eligibilityParameters,
+  eligibilityParameters: [],
   requiredDocuments: scheme.requiredDocuments,
 });
 

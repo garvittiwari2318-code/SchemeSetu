@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppView, Language, Scheme, SchemeMatch, UserProfile } from './types';
 import { Header } from './components/Header';
 import { LandingView } from './components/LandingView';
@@ -14,7 +14,19 @@ import { TransparencyView } from './components/TransparencyView';
 import { SchemeModal } from './components/SchemeModal';
 import { CitizenInfoModal } from './components/CitizenInfoModal';
 import { Footer } from './components/Footer';
-import { getRecommendations, mapRecommendationsToSchemeMatches, toRecommendationRequest } from './api';
+import {
+  ApiError,
+  createApplication,
+  getCurrentUser,
+  getRecommendations,
+  logout,
+  mapRecommendationsToSchemeMatches,
+  toRecommendationRequest,
+} from './api';
+import type { AuthUser } from './api';
+import { ApplicationWorkspace } from './components/ApplicationWorkspace';
+import { AuthModal } from './components/AuthModal';
+import type { Recommendation } from './api/types';
 
 export const INITIAL_PROFILE: UserProfile = {
   supportGoal: 'New Business',
@@ -30,7 +42,7 @@ export const INITIAL_PROFILE: UserProfile = {
   occupation: 'Aspiring Entrepreneur',
   businessType: 'Manufacturing',
   businessStage: 'New',
-  turnover: 0
+  turnover: 0,
 };
 
 export default function App() {
@@ -42,6 +54,26 @@ export default function App() {
   const [isCitizenModalOpen, setIsCitizenModalOpen] = useState<boolean>(false);
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false);
   const [evaluationError, setEvaluationError] = useState<string | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [pendingApplicationScheme, setPendingApplicationScheme] = useState<Scheme | null>(null);
+  const [applicationId, setApplicationId] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const response = await getCurrentUser();
+
+        if (response.success && response.data) {
+          setCurrentUser(response.data);
+        }
+      } catch {
+        setCurrentUser(null);
+      }
+    };
+
+    void restoreSession();
+  }, []);
 
   const handleNavigate = (view: AppView) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -51,6 +83,14 @@ export default function App() {
   const handleStartEligibility = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setCurrentView('flow');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      setCurrentUser(null);
+    }
   };
 
   const handleSubmitEvaluation = async () => {
@@ -69,7 +109,9 @@ export default function App() {
 
       setMatches(
         mapRecommendationsToSchemeMatches(
-          response.recommendations.filter((recommendation) => recommendation.eligible),
+          response.recommendations.filter(
+            (recommendation: Recommendation) => recommendation.eligible,
+          ),
         ),
       );
     } catch (error) {
@@ -83,11 +125,89 @@ export default function App() {
     }
   };
 
+  const createApplicationForUser = async (scheme: Scheme) => {
+    const response = await createApplication({
+      schemeId: scheme.id,
+      answers: toRecommendationRequest(profile),
+    });
+
+    if (!response.success) {
+      throw new Error('The application service returned an unsuccessful response.');
+    }
+
+    const id = response.data.applicationId ?? response.data._id;
+
+    if (!id) {
+      throw new Error('The application was created but no application ID was returned.');
+    }
+
+    setApplicationId(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleStartApplication = async (scheme: Scheme) => {
+    setEvaluationError(null);
+
+    if (!currentUser) {
+      setPendingApplicationScheme(scheme);
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    try {
+      await createApplicationForUser(scheme);
+    } catch (error) {
+      if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+        setCurrentUser(null);
+        setPendingApplicationScheme(scheme);
+        setIsAuthModalOpen(true);
+        return;
+      }
+
+      setEvaluationError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to start the application right now.',
+      );
+    }
+  };
+
+  const handleAuthenticated = async (user: AuthUser) => {
+    setCurrentUser(user);
+    setIsAuthModalOpen(false);
+
+    if (!pendingApplicationScheme) {
+      return;
+    }
+
+    const scheme = pendingApplicationScheme;
+    setPendingApplicationScheme(null);
+
+    try {
+      await createApplicationForUser(scheme);
+    } catch (error) {
+      if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+        setCurrentUser(null);
+        setPendingApplicationScheme(scheme);
+        setIsAuthModalOpen(true);
+        return;
+      }
+
+      setEvaluationError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to create the application right now.',
+      );
+    }
+  };
+
   const handleResetSession = () => {
     setProfile(INITIAL_PROFILE);
     setMatches([]);
     setEvaluationError(null);
     setIsCitizenModalOpen(false);
+    setApplicationId(null);
+    setPendingApplicationScheme(null);
   };
 
   return (
@@ -100,49 +220,62 @@ export default function App() {
         onToggleLanguage={setLanguage}
         onStartEligibility={handleStartEligibility}
         onOpenQuickInfo={() => setIsCitizenModalOpen(true)}
+        currentUser={currentUser}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onLogout={handleLogout}
       />
 
       {/* Main Viewport Body */}
       <main className="flex-1 w-full pt-20">
-        {currentView === 'landing' && (
-          <LandingView
-            language={language}
-            onStartEligibility={handleStartEligibility}
-            onNavigateToTransparency={() => handleNavigate('transparency')}
+        {applicationId ? (
+          <ApplicationWorkspace
+            applicationId={applicationId}
+            onBackToResults={() => setApplicationId(null)}
           />
-        )}
+        ) : (
+          <>
+            {currentView === 'landing' && (
+              <LandingView
+                language={language}
+                onStartEligibility={handleStartEligibility}
+                onNavigateToTransparency={() => handleNavigate('transparency')}
+              />
+            )}
 
-        {currentView === 'flow' && (
-          <EligibilityFlow
-            profile={profile}
-            isEvaluating={isEvaluating}
-            onChangeProfile={setProfile}
-            onBackToHome={() => handleNavigate('landing')}
-            onSubmitEvaluation={handleSubmitEvaluation}
-          />
-        )}
+            {currentView === 'flow' && (
+              <EligibilityFlow
+                profile={profile}
+                isEvaluating={isEvaluating}
+                onChangeProfile={setProfile}
+                onBackToHome={() => handleNavigate('landing')}
+                onSubmitEvaluation={handleSubmitEvaluation}
+              />
+            )}
 
-        {currentView === 'results' && (
-          <ResultsView
-            matches={matches}
-            profile={profile}
-            isEvaluating={isEvaluating}
-            errorMessage={evaluationError}
-            onModifyProfile={() => handleNavigate('flow')}
-            onReturnHome={() => handleNavigate('landing')}
-            onOpenSchemeModal={setSelectedScheme}
-          />
-        )}
+            {currentView === 'results' && (
+              <ResultsView
+                matches={matches}
+                profile={profile}
+                isEvaluating={isEvaluating}
+                errorMessage={evaluationError}
+                onModifyProfile={() => handleNavigate('flow')}
+                onReturnHome={() => handleNavigate('landing')}
+                onOpenSchemeModal={setSelectedScheme}
+                onStartApplication={handleStartApplication}
+              />
+            )}
 
-        {currentView === 'schemes' && (
-          <RepositoryView
-            onStartEligibility={handleStartEligibility}
-            onOpenSchemeModal={setSelectedScheme}
-          />
-        )}
+            {currentView === 'schemes' && (
+              <RepositoryView
+                onStartEligibility={handleStartEligibility}
+                onOpenSchemeModal={setSelectedScheme}
+              />
+            )}
 
-        {currentView === 'transparency' && (
-          <TransparencyView onStartEligibility={handleStartEligibility} />
+            {currentView === 'transparency' && (
+              <TransparencyView onStartEligibility={handleStartEligibility} />
+            )}
+          </>
         )}
       </main>
 
@@ -150,7 +283,10 @@ export default function App() {
       <Footer onNavigate={handleNavigate} />
 
       {/* Scheme Detail Modal */}
-      <SchemeModal scheme={selectedScheme} onClose={() => setSelectedScheme(null)} />
+      <SchemeModal
+        scheme={selectedScheme}
+        onClose={() => setSelectedScheme(null)}
+      />
 
       {/* Citizen Session & Privacy Status Modal */}
       <CitizenInfoModal
@@ -159,6 +295,15 @@ export default function App() {
         profile={profile}
         onResetSession={handleResetSession}
         onStartEvaluation={handleStartEligibility}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setPendingApplicationScheme(null);
+        }}
+        onAuthenticated={handleAuthenticated}
       />
     </div>
   );

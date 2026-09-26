@@ -1,8 +1,3 @@
-/**
- * Types for the existing SchemeSetu backend REST API.
- * These types intentionally mirror the backend request/response contracts.
- */
-
 export interface RecommendationRequest {
   age: number;
   gender: 'male' | 'female' | 'other';
@@ -25,31 +20,28 @@ export interface RuleExplanation {
 export interface Recommendation {
   schemeId: string;
   name: string;
-  description: string;
-  objective: string;
-  ministry: string;
-  category: string;
-  sectorType: string;
-
-  benefitHeadline: string;
-  maxCeilingText: string;
-  statutoryClause: string;
-
-  officialPortalUrl: string;
-  requiredDocuments: string[];
-
   eligible: boolean;
   matchScore: number;
   passedRules: unknown[];
   failedRules: unknown[];
   ruleExplanations: RuleExplanation[];
-  interestRate: number;
-  maxLoanAmount: number;
-  maxTenureYears: number;
-  moratoriumMonths: number;
+  interestRate: number | null;
+  maxLoanAmount: number | null;
+  maxTenureYears: number | null;
+  moratoriumMonths: number | null;
+  objective: string;
+  ministry: string;
+  category: string;
+  sectorType: string;
+  benefitHeadline: string;
+  maxCeilingText: string;
+  statutoryClause: string;
+  description: string;
+  officialPortalUrl: string;
+  requiredDocuments: string[];
 }
 
-export interface RecommendationsResponse {
+export interface RecommendationResponse {
   success: boolean;
   count: number;
   recommendations: Recommendation[];
@@ -75,51 +67,32 @@ export interface Scheme {
   schemeId: string;
   name: string;
   description: string;
-
   objective: string;
   ministry: string;
   category: string;
   sectorType: string;
-
   benefitHeadline: string;
   maxCeilingText: string;
   statutoryClause: string;
   officialPortalUrl: string;
-
-  eligibilityParameters: string[];
   requiredDocuments: string[];
-
   interestRate: number | null;
   maxLoanAmount: number | null;
   maxTenureYears: number | null;
   moratoriumMonths: number | null;
-
-  recommendationEnabled: boolean;
   active: boolean;
+  recommendationEnabled: boolean;
   version: number;
-
   rules: SchemeRule[];
   scoring: SchemeScoring;
-
   createdAt: string;
   updatedAt: string;
 }
 
-export interface SchemesResponse {
-  success: boolean;
-  count: number;
-  data: Scheme[];
-}
+export interface SchemesResponse { success: boolean; count: number; data: Scheme[]; }
+export interface SchemeResponse { success: boolean; data: Scheme; }
 
-export interface SchemeResponse {
-  success: boolean;
-  data: Scheme;
-}
-
-export interface GeoJSONPoint {
-  type: 'Point';
-  coordinates: [number, number];
-}
+export interface GeoJSONPoint { type: 'Point'; coordinates: [number, number]; }
 
 export interface Partner {
   _id: string;
@@ -132,50 +105,71 @@ export interface Partner {
   updatedAt: string;
 }
 
-export interface PartnersResponse {
-  success: boolean;
-  count: number;
-  data: Partner[];
-}
+export interface PartnersResponse { success: boolean; count: number; data: Partner[]; }
 
-export interface ApplicationAnswers extends RecommendationRequest {
-  [key: string]: unknown;
-}
+export type ApplicationAnswers = RecommendationRequest;
 
 export interface CreateApplicationRequest {
-  applicantName: string;
   schemeId: string;
   answers: ApplicationAnswers;
 }
 
-export interface CreatedApplication {
-  applicationId: string;
-  applicantName: string;
-  schemeId: string;
-  schemeName: string;
-  status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
-  eligible: boolean;
-  matchScore: number;
-  createdAt: string;
-}
+export type ApplicationStatus =
+  | 'draft'
+  | 'eligibility_confirmed'
+  | 'documents_pending'
+  | 'under_verification'
+  | 'ready_for_submission'
+  | 'submitted'
+  | 'under_review'
+  | 'approved'
+  | 'rejected'
+  | 'withdrawn';
 
-export interface CreateApplicationResponse {
-  success: boolean;
-  data: CreatedApplication;
-}
+export type ApplicationDocumentStatus = 'pending' | 'uploaded' | 'verified' | 'rejected';
 
-export interface ApplicationUser {
-  _id: string;
+export interface ApplicationDocument {
+  requirementId: string;
   name: string;
-  email: string;
+  mandatory: boolean;
+  status: ApplicationDocumentStatus;
+  fileReference: string | null;
+  uploadedAt: string | null;
+  verifiedAt: string | null;
+  rejectionReason: string | null;
 }
+
+export interface ApplicationStatusHistory {
+  status: ApplicationStatus;
+  note: string | null;
+  changedBy: string | null;
+  changedAt: string;
+}
+
+export interface ApplicationSubmission {
+  mode: 'external_portal' | 'api' | null;
+  officialPortalUrl: string | null;
+  externalReference: string | null;
+  submittedAt: string | null;
+}
+
+export interface ApplicationUser { _id: string; name: string; email: string; }
 
 export interface ApplicationSchemeSummary {
   _id: string;
   schemeId: string;
   name: string;
-  interestRate?: number;
-  maxLoanAmount?: number;
+  objective?: string;
+  ministry?: string;
+  category?: string;
+  sectorType?: string;
+  benefitHeadline?: string;
+  maxCeilingText?: string;
+  officialPortalUrl?: string;
+  requiredDocuments?: string[];
+  interestRate?: number | null;
+  maxLoanAmount?: number | null;
+  version?: number;
 }
 
 export interface ApplicationEvaluation {
@@ -183,6 +177,7 @@ export interface ApplicationEvaluation {
   score: number | null;
   failedHardRules: string[];
   explanations: string[];
+  evaluatedAt: string | null;
 }
 
 export interface Application {
@@ -192,22 +187,21 @@ export interface Application {
   schemeVersion: number;
   answers: Record<string, unknown>;
   evaluation: ApplicationEvaluation;
-  status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
-  partner?: string;
+  status: ApplicationStatus;
+  statusHistory: ApplicationStatusHistory[];
+  documents: ApplicationDocument[];
+  submission: ApplicationSubmission;
+  partner?: string | null;
+  rejectionReason?: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ApplicationsResponse {
-  success: boolean;
-  count: number;
-  data: Application[];
-}
+export type CreatedApplication = Application & { applicationId?: string };
 
-export interface ApplicationResponse {
-  success: boolean;
-  data: Application;
-}
+export interface CreateApplicationResponse { success: boolean; data: CreatedApplication; }
+export interface ApplicationsResponse { success: boolean; count: number; data: Application[]; }
+export interface ApplicationResponse { success: boolean; data: Application; }
 
 export interface HealthResponse {
   success: boolean;
