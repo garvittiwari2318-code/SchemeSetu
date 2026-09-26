@@ -11,9 +11,6 @@ const cors = require("cors");
 // models already exposed for use by controllers/services.
 // ----------------------------------------------------------------------
 const connectDB = require("./config/db");
-connectDB().catch((err) => {
-  console.error(err.message);
-});
 // ----------------------------------------------------------------------
 
 const { notFound, errorHandler } = require("./middleware/errorHandler");
@@ -37,6 +34,19 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
 
 // ---- Global Middleware ----
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("MongoDB connection error:", err.message);
+    res.status(503).json({
+      success: false,
+      message: "Database unavailable, please try again shortly.",
+    });
+  }
+});
+
 app.use(
   cors({
     origin: process.env.FRONTEND_ORIGIN,
@@ -68,16 +78,14 @@ app.use("/api/auth", authRoutes);
 
 // Future route mounts (uncomment as features are built):
 // app.use("/api/auth", require("./routes/authRoutes"));
-// app.use("/api/users", require("./routes/userRoutes"));
 
 // ---- Error Handling Middleware (must be last) ----
 app.use(notFound);
 app.use(errorHandler);
 
 // ---- Start Server ----
-// ---- Start Server ----
 if (require.main === module) {
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 5001;
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
